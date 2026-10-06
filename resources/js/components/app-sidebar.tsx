@@ -1,5 +1,7 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { BookOpen, Bug, BugPlay, Boxes, FolderGit2, LayoutGrid } from 'lucide-react';
+import ErrorLogController from '@/actions/App/Http/Controllers/ErrorLogController';
+import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -13,7 +15,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { apiSimulator, dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -21,6 +23,21 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Product demo',
+        href: ProductController.index(),
+        icon: Boxes,
+    },
+    {
+        title: 'API simulator',
+        href: apiSimulator(),
+        icon: BugPlay,
+    },
+    {
+        title: 'Error logs',
+        href: ErrorLogController.index(),
+        icon: Bug,
     },
 ];
 

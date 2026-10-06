@@ -34,5 +34,6 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'error_log_key' => env('ERROR_LOG_KEY'),
 
 ];
