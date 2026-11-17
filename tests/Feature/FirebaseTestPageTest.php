@@ -91,4 +91,48 @@ class FirebaseTestPageTest extends TestCase
             ->assertJsonPath('recent_messages.0.title', 'UI Test')
             ->assertJsonPath('recent_messages.0.sent', true);
     }
+
+    public function test_app_error_log_recorder_sends_to_firebase(): void
+    {
+        $opensslConfig = tempnam(sys_get_temp_dir(), 'openssl_');
+        $this->assertNotFalse($opensslConfig);
+        file_put_contents($opensslConfig, "[req]\ndistinguished_name=dn\n[dn]\n");
+
+        try {
+            $options = [
+                'private_key_bits' => 2048,
+                'private_key_type' => OPENSSL_KEYTYPE_RSA,
+                'config' => $opensslConfig,
+            ];
+            $resource = openssl_pkey_new($options);
+            $this->assertNotFalse($resource);
+            $privateKey = '';
+            $this->assertTrue(openssl_pkey_export($resource, $privateKey, null, $options));
+        } finally {
+            @unlink($opensslConfig);
+        }
+
+        config()->set('error-redirect.firebase.enabled', true);
+        config()->set('error-redirect.firebase.project_id', 'recorder-project');
+        config()->set('error-redirect.firebase.credentials', json_encode([
+            'client_email' => 'firebase-adminsdk@recorder-project.iam.gserviceaccount.com',
+            'private_key' => $privateKey,
+            'project_id' => 'recorder-project',
+            'token_uri' => 'https://oauth2.googleapis.com/token',
+        ], JSON_THROW_ON_ERROR));
+
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'recorder-access-token',
+                'expires_in' => 3600,
+            ], 200),
+            'https://fcm.googleapis.com/v1/projects/recorder-project/messages:send' => Http::response([
+                'name' => 'projects/recorder-project/messages/555',
+            ], 200),
+        ]);
+
+        \App\Support\ErrorLog::message('Localhost or online error');
+
+        Http::assertSent(fn ($request) => $request->url() === 'https://fcm.googleapis.com/v1/projects/recorder-project/messages:send');
+    }
 }

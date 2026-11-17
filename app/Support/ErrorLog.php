@@ -4,6 +4,7 @@ namespace App\Support;
 
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use Unwahas\ErrorRedirect\Support\FirebaseNotifier;
 
 class ErrorLog
 {
@@ -13,26 +14,10 @@ class ErrorLog
     public static function record(Throwable $e, array $context = [], bool $deduplicate = true): void
     {
         try {
-            if ($deduplicate) {
-                $existingError = DB::table('error_logs')
-                    ->where('class', $e::class)
-                    ->where('file', $e->getFile())
-                    ->where('line', $e->getLine())
-                    ->latest('id')
-                    ->first(['id']);
-
-                if ($existingError !== null) {
-                    DB::table('error_logs')
-                        ->where('id', $existingError->id)
-                        ->increment('count', 1, ['updated_at' => now()]);
-
-                    return;
-                }
-            }
-
             $req = app()->runningInConsole() ? null : request();
+            $now = now();
 
-            DB::table('error_logs')->insert([
+            $payload = [
                 'app' => config('app.name'),
                 'class' => $e::class,
                 'message' => $e->getMessage(),
@@ -45,8 +30,38 @@ class ErrorLog
                 'method' => $req?->method(),
                 'user_id' => auth()->id(),
                 'ip' => $req?->ip(),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+
+            $id = 0;
+
+            try {
+                if ($deduplicate) {
+                    $existingError = DB::table('error_logs')
+                        ->where('class', $e::class)
+                        ->where('file', $e->getFile())
+                        ->where('line', $e->getLine())
+                        ->latest('id')
+                        ->first(['id']);
+
+                    if ($existingError !== null) {
+                        DB::table('error_logs')
+                            ->where('id', $existingError->id)
+                            ->increment('count', 1, ['updated_at' => $now]);
+
+                        return;
+                    }
+                }
+
+                $id = DB::table('error_logs')->insertGetId($payload);
+            } catch (Throwable) {
+                // Allow Firebase delivery even if local DB logging fails or table is absent.
+            }
+
+            FirebaseNotifier::sendErrorLog($id, [
+                ...$payload,
+                'created_at' => $now->toIso8601String(),
             ]);
         } catch (Throwable) {
         }

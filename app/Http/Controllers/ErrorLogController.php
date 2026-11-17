@@ -15,10 +15,20 @@ use RuntimeException;
 
 class ErrorLogController extends Controller
 {
-    public function indexApi(): JsonResponse
+    private function requestedAppName(Request $request): ?string
     {
+        $appName = $request->header('X-App-Name') ?? $request->query('app');
+
+        return is_string($appName) && trim($appName) !== '' ? trim($appName) : null;
+    }
+
+    public function indexApi(Request $request): JsonResponse
+    {
+        $appName = $this->requestedAppName($request);
+
         return response()->json(
             DB::table('error_logs')
+                ->when($appName !== null, fn ($query) => $query->where('app', $appName))
                 ->select('id', 'app', 'class', 'message', 'file', 'line', 'url', 'method', 'count', 'resolved_at', 'created_at')
                 ->orderByDesc('id')
                 ->paginate(5),
@@ -27,8 +37,11 @@ class ErrorLogController extends Controller
 
     public function newSince(Request $request): JsonResponse
     {
+        $appName = $this->requestedAppName($request);
+
         return response()->json(
             DB::table('error_logs')
+                ->when($appName !== null, fn ($query) => $query->where('app', $appName))
                 ->where('id', '>', $request->integer('after_id'))
                 ->orderBy('id')
                 ->limit(20)
@@ -36,10 +49,14 @@ class ErrorLogController extends Controller
         );
     }
 
-    public function latestId(): JsonResponse
+    public function latestId(Request $request): JsonResponse
     {
+        $appName = $this->requestedAppName($request);
+
         return response()->json([
-            'id' => (int) DB::table('error_logs')->max('id'),
+            'id' => (int) DB::table('error_logs')
+                ->when($appName !== null, fn ($query) => $query->where('app', $appName))
+                ->max('id'),
         ]);
     }
 
@@ -144,9 +161,12 @@ class ErrorLogController extends Controller
         return to_route('products.index');
     }
 
-    public function notificationCount(): JsonResponse
+    public function notificationCount(Request $request): JsonResponse
     {
-        $query = ErrorLog::query()->whereNull('resolved_at');
+        $appName = $this->requestedAppName($request);
+        $query = ErrorLog::query()
+            ->when($appName !== null, fn ($q) => $q->where('app', $appName))
+            ->whereNull('resolved_at');
 
         $count = (clone $query)->count();
         $latest = $query->latest('id')->first();

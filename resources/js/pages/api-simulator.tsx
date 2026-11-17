@@ -4,7 +4,6 @@ import {
     Braces,
     CircleAlert,
     CircleCheck,
-    KeyRound,
     LoaderCircle,
     Play,
     Terminal,
@@ -39,7 +38,7 @@ const endpoints: { value: Endpoint; label: string }[] = [
 
 export default function ApiSimulator() {
     const [endpoint, setEndpoint] = useState<Endpoint>('index');
-    const [apiKey, setApiKey] = useState('');
+    const [appName, setAppName] = useState('');
     const [errorLogId, setErrorLogId] = useState('1');
     const [afterId, setAfterId] = useState('0');
     const [response, setResponse] = useState<ApiResponse | null>(null);
@@ -72,7 +71,7 @@ export default function ApiSimulator() {
                 method: 'GET',
                 headers: {
                     Accept: 'application/json',
-                    ...(apiKey.trim() ? { 'X-Api-Key': apiKey.trim() } : {}),
+                    ...(appName.trim() ? { 'X-App-Name': appName.trim() } : {}),
                 },
             });
             const contentType = result.headers.get('content-type') ?? '';
@@ -205,25 +204,23 @@ export default function ApiSimulator() {
 
                                 <div className="flex flex-col gap-2">
                                     <label
-                                        htmlFor="api-key"
+                                        htmlFor="app-name"
                                         className="flex items-center gap-2 text-sm font-medium"
                                     >
-                                        <KeyRound className="size-4 text-muted-foreground" />
-                                        X-Api-Key header
+                                        X-App-Name header (optional)
                                     </label>
                                     <Input
-                                        id="api-key"
-                                        type="password"
+                                        id="app-name"
+                                        type="text"
                                         autoComplete="off"
-                                        value={apiKey}
+                                        value={appName}
                                         onChange={(event) =>
-                                            setApiKey(event.target.value)
+                                            setAppName(event.target.value)
                                         }
-                                        placeholder="Enter your configured API key"
+                                        placeholder="Filter logs by app name (e.g. Laravel)"
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        Leave blank to see the API’s 401 response.
-                                        The key is not saved or displayed.
+                                        Leave blank to fetch logs from all apps.
                                     </p>
                                 </div>
 
