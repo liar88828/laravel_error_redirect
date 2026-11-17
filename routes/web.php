@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ErrorLogController;
+use App\Http\Controllers\FirebaseTestController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,10 @@ Route::middleware(['auth',
     Route::patch('error-logs/{errorLog}/resolve', [ErrorLogController::class, 'resolve'])->name('error-logs.resolve');
     Route::delete('error-logs/{errorLog}', [ErrorLogController::class, 'destroy'])->name('error-logs.destroy');
     Route::post('error-logs/simulate', [ErrorLogController::class, 'simulate'])->name('error-logs.simulate');
+
+    Route::get('firebase-test', [FirebaseTestController::class, 'index'])->name('firebase-test.index');
+    Route::get('firebase-test/status', [FirebaseTestController::class, 'status'])->name('firebase-test.status');
+    Route::post('firebase-test/send', [FirebaseTestController::class, 'send'])->name('firebase-test.send');
 });
 
 require __DIR__.'/settings.php';

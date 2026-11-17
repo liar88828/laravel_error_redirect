@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Bug, BugPlay, Boxes, FolderGit2, LayoutGrid } from 'lucide-react';
+import { Bell, BookOpen, Bug, BugPlay, Boxes, FolderGit2, LayoutGrid } from 'lucide-react';
 import ErrorLogController from '@/actions/App/Http/Controllers/ErrorLogController';
 import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import AppLogo from '@/components/app-logo';
@@ -38,6 +38,11 @@ const mainNavItems: NavItem[] = [
         title: 'Error logs',
         href: ErrorLogController.index(),
         icon: Bug,
+    },
+    {
+        title: 'Firebase test',
+        href: '/firebase-test',
+        icon: Bell,
     },
 ];
 

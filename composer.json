@@ -16,7 +16,8 @@
         "laravel/framework": "^13.17",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
-        "laravel/wayfinder": "^0.1.14"
+        "laravel/wayfinder": "^0.1.14",
+        "unwahas/error-managements": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -114,5 +115,14 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../laravel_error_redirect_lib",
+            "options": {
+                "symlink": true
+            }
+        }
+    ]
 }
