@@ -131,7 +131,7 @@ class FirebaseTestPageTest extends TestCase
             ], 200),
         ]);
 
-        \App\Support\ErrorLog::message('Localhost or online error');
+        \Unwahas\ErrorRedirect\Support\ErrorLog::message('Localhost or online error');
 
         Http::assertSent(fn ($request) => $request->url() === 'https://fcm.googleapis.com/v1/projects/recorder-project/messages:send');
     }

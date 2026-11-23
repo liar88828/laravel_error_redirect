@@ -3,10 +3,10 @@
 namespace Tests\Feature\Support;
 
 use App\Models\ErrorLog as ErrorLogModel;
-use App\Support\ErrorLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use RuntimeException;
 use Tests\TestCase;
+use Unwahas\ErrorRedirect\Support\ErrorLog;
 
 class ErrorLogTest extends TestCase
 {

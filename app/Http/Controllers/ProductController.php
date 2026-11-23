@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Models\ErrorLog;
 use App\Models\Product;
-use App\Support\ErrorLog as ErrorLogRecorder;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use RuntimeException;
+use Unwahas\ErrorRedirect\Support\ErrorLog as ErrorLogRecorder;
 
 class ProductController extends Controller
 {

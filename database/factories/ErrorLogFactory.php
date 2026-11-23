@@ -28,6 +28,7 @@ class ErrorLogFactory extends Factory
             'message' => $this->faker->sentence(),
             'file' => 'app/'.$this->faker->filePath(),
             'line' => $this->faker->numberBetween(1, 500),
+            'deduplication_key' => hash('sha256', Str::uuid()->toString()),
             'trace' => '#0 '.$this->faker->filePath().'('.$this->faker->numberBetween(1, 500).'): {closure}()',
             'url' => $this->faker->optional()->url(),
             'method' => $this->faker->randomElement(['GET', 'POST', 'PUT', 'DELETE']),

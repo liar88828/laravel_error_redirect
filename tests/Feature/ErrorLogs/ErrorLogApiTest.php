@@ -20,7 +20,7 @@ class ErrorLogApiTest extends TestCase
         ]);
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->getJson(route('api.error-logs.index'))
+            ->getJson(route('error-redirect.api.index'))
             ->assertOk()
             ->assertJsonPath('data.0.message', 'External service failed.')
             ->assertJsonPath('data.0.count', 4)
@@ -31,7 +31,7 @@ class ErrorLogApiTest extends TestCase
     {
         config(['error-redirect.api.key' => 'test-api-key']);
 
-        $this->getJson(route('api.error-logs.index'))
+        $this->getJson(route('error-redirect.api.index'))
             ->assertUnauthorized();
     }
 
@@ -42,7 +42,7 @@ class ErrorLogApiTest extends TestCase
         $errorLog = ErrorLog::factory()->create();
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->getJson(route('api.error-logs.latest-id'))
+            ->getJson(route('error-redirect.api.latest-id'))
             ->assertOk()
             ->assertExactJson(['id' => $errorLog->id]);
     }
@@ -55,7 +55,7 @@ class ErrorLogApiTest extends TestCase
         $newErrorLog = ErrorLog::factory()->create(['message' => 'New failure.']);
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->getJson(route('api.error-logs.new', ['after_id' => $cursor->id]))
+            ->getJson(route('error-redirect.api.new', ['after_id' => $cursor->id]))
             ->assertOk()
             ->assertJsonCount(1)
             ->assertJsonPath('0.id', $newErrorLog->id)
@@ -69,7 +69,7 @@ class ErrorLogApiTest extends TestCase
         $errorLog = ErrorLog::factory()->create(['message' => 'External service failed.']);
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->getJson(route('api.error-logs.show', ['id' => $errorLog->id]))
+            ->getJson(route('error-redirect.api.show', ['id' => $errorLog->id]))
             ->assertOk()
             ->assertJsonPath('id', $errorLog->id)
             ->assertJsonPath('message', 'External service failed.');
@@ -80,7 +80,7 @@ class ErrorLogApiTest extends TestCase
         config(['error-redirect.api.key' => 'test-api-key']);
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->getJson(route('api.error-logs.show', ['id' => 999]))
+            ->getJson(route('error-redirect.api.show', ['id' => 999]))
             ->assertNotFound();
     }
 
@@ -91,7 +91,7 @@ class ErrorLogApiTest extends TestCase
         $errorLog = ErrorLog::factory()->create();
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->patchJson(route('api.error-logs.resolve', ['id' => $errorLog->id]))
+            ->patchJson(route('error-redirect.api.resolve', ['id' => $errorLog->id]))
             ->assertOk()
             ->assertJsonPath('id', $errorLog->id)
             ->assertJsonStructure(['id', 'resolved_at']);
@@ -106,7 +106,7 @@ class ErrorLogApiTest extends TestCase
         $errorLog = ErrorLog::factory()->create();
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->deleteJson(route('api.error-logs.destroy', ['id' => $errorLog->id]))
+            ->deleteJson(route('error-redirect.api.destroy', ['id' => $errorLog->id]))
             ->assertNoContent();
 
         $this->assertDatabaseMissing('error_logs', ['id' => $errorLog->id]);
@@ -117,7 +117,7 @@ class ErrorLogApiTest extends TestCase
         config(['error-redirect.api.key' => 'test-api-key']);
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->patchJson(route('api.error-logs.resolve', ['id' => 999]))
+            ->patchJson(route('error-redirect.api.resolve', ['id' => 999]))
             ->assertNotFound();
     }
 
@@ -126,7 +126,7 @@ class ErrorLogApiTest extends TestCase
         config(['error-redirect.api.key' => 'test-api-key']);
 
         $this->withHeader('X-Error-Log-Key', 'test-api-key')
-            ->deleteJson(route('api.error-logs.destroy', ['id' => 999]))
+            ->deleteJson(route('error-redirect.api.destroy', ['id' => 999]))
             ->assertNotFound();
     }
 }
